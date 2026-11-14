@@ -6,8 +6,8 @@ POST http://localhost:5001/auth/register
 Content-Type: application/json
 
 {
-    "username": "usuarioprueba",
-    "password": "contraseñaprueba"
+    "username": "username",
+    "password": "password"
 }
 
 ### POST /auth/login
@@ -15,9 +15,34 @@ POST http://localhost:5001/auth/login
 Content-Type: application/json
 
 {
-    "username": "usuarioprueba",
-    "password": "contraseñaprueba"
+    "username": "username",
+    "password": "password"
 }
 
-
 ###
+GET http://localhost:5001/todos
+Authorization: TU_TOKEN_JWT
+
+
+### Crear una nueva tarea
+POST http://localhost:5001/todos
+Authorization: TU_TOKEN_JWT
+Content-Type: application/json
+
+{
+    "task": "Nueva tarea de prueba"
+}
+
+### Actualizar una tarea
+PUT http://localhost:5001/todos/2
+Authorization: TU_TOKEN_JWT
+Content-Type: application/json
+
+{
+    "task": "Tarea actualizada",
+    "completed": 1
+}
+
+### Eliminar una tarea
+DELETE http://localhost:5001/todos/2
+Authorization: TU_TOKEN_JWT

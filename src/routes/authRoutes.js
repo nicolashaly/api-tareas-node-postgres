@@ -27,13 +27,38 @@ router.post('/register', (req, res) => {
         res.json({ token })
     } catch (err) {
         console.log(err.message)
+        if (err.message.includes('UNIQUE')) {
+            return res.status(409).json({ message: 'El usuario ya existe' })
+        }
         res.sendStatus(500)
     }
 })
 
 router.post('/login', (req, res) => {
+    const { username, password } = req.body
 
-})
+    try {
+        const getUser = db.prepare('SELECT * FROM users WHERE username = ?')
+        const user = getUser.get(username)
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' })
+        }
+
+        const passwordIsValid = bcrypt.compareSync(password, user.password)
+        if (!passwordIsValid) {
+            return res.status(401).json({ message: 'Contraseña incorrecta' })
+        }
+
+        //Crear un token JWT para el usuario
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' })
+        res.json({ token })
+    } catch (err) {
+        console.log(err.message)
+        res.sendStatus(500)
+    }
+
+})  
 
 
 export default router
