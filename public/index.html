@@ -33,6 +33,7 @@
     </section>
     <header style="display: none;">
         <h1 class="text-gradient">Tienes 0 tareas abiertas.</h1>
+        <button onclick="logout()">Cerrar sesión</button>
     </header>
     <nav style="display: none;" class="tab-container">
         <button onclick="changeTab('All')" data-tab="All" class="tab-button  selected-tab">
@@ -243,7 +244,17 @@
     }
 
     function logout() {
-        // wipe states and clear cached token
+        token = null
+        localStorage.removeItem('token')
+        todos = []
+        changeTab('All')
+        main.innerHTML = ''
+        email.value = ''
+        password.value = ''
+        nav.style.display = 'none'
+        header.style.display = 'none'
+        main.style.display = 'none'
+        authContent.style.display = 'flex'
     }
 
     // CRUD LOGIC
