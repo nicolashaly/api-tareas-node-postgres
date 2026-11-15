@@ -3,8 +3,8 @@ services:
     build: .
     container_name: todo-app
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/todoapp
-      - JWT_SECRET=your_jwt_secret_here
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}@db:5432/todoapp
+      - JWT_SECRET=${JWT_SECRET:?define JWT_SECRET en .env}
       - NODE_ENV=development
       - PORT=5001
     ports:
@@ -19,10 +19,10 @@ services:
     container_name: postgres-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}
       POSTGRES_DB: todoapp
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
 

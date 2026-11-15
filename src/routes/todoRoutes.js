@@ -28,11 +28,12 @@ router.post('/', async (req, res) => {
 //PUT /todos/:id - Actualizar una tarea específica para un usuario específico
 router.put('/:id', async (req, res) => { 
     const { completed } = req.body
-    const { id } = req.params
-    
+    const id = parseInt(req.params.id)
+    if (!Number.isInteger(id)) return res.status(400).json({ message: 'ID inválido' })
+
     const updatedTodo = await prisma.todo.update({
         where: {
-            id: parseInt(id),
+            id,
             userId: req.userId
         },
         data: {
@@ -45,17 +46,25 @@ router.put('/:id', async (req, res) => {
 
 //DELETE /todos/:id - Eliminar una tarea específica para un usuario específico
 router.delete('/:id', async (req, res) => {
-    const { id } = req.params
+    const id = parseInt(req.params.id)
+    if (!Number.isInteger(id)) return res.status(400).json({ message: 'ID inválido' })
     const userId = req.userId
-    
+
     await prisma.todo.delete({
         where: {
-            id: parseInt(id),
+            id,
             userId
         }
     })
 
     res.json({ message: 'Tarea eliminada correctamente' })
+})
+
+// Express 5 envía aquí los errores de los handlers async: sin detalles internos al cliente
+router.use((err, req, res, next) => {
+    if (err.code === 'P2025') return res.status(404).json({ message: 'Tarea no encontrada' })
+    console.log(err.message)
+    res.sendStatus(500)
 })
 
 export default router
