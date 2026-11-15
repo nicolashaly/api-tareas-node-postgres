@@ -63,7 +63,7 @@ router.delete('/:id', async (req, res) => {
 // Express 5 envía aquí los errores de los handlers async: sin detalles internos al cliente
 router.use((err, req, res, next) => {
     if (err.code === 'P2025') return res.status(404).json({ message: 'Tarea no encontrada' })
-    console.log(err.message)
+    console.error(err.name, err.code)
     res.sendStatus(500)
 })
 

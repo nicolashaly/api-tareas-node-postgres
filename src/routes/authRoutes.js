@@ -34,7 +34,7 @@ router.post('/register', async (req, res) => {
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' })
         res.json({ token })
     } catch (err) {
-        console.log(err.message)
+        console.error(err.name, err.code)
         if (err.code === 'P2002') { // violación de unicidad en Prisma/Postgres
             return res.status(409).json({ message: 'El usuario ya existe' })
         }
@@ -65,7 +65,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' })
         res.json({ token })
     } catch (err) {
-        console.log(err.message)
+        console.error(err.name, err.code)
         res.sendStatus(500)
     }
 
