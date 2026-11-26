@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 
+// Verifica el token JWT del header Authorization y guarda el id del usuario en req.userId
 function authMiddleware(req, res, next) {
     const token = req.headers['authorization']
 

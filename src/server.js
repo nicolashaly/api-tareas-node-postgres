@@ -8,21 +8,21 @@ import authMiddleware from './middleware/authMiddleware.js'
 const app = express()
 const PORT = process.env.PORT || 5001
 
-//Obtener el nombre del archivo actual y el directorio actual
+// Ruta de este archivo y su carpeta (no existen __dirname ni __filename en módulos ES)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-//Middleware
-app.use(express.json()) //Para poder recibir datos en formato JSON en el cuerpo de la solicitud
-//Le dice a express que use la carpeta public para servir archivos estáticos (como HTML, CSS, JS, imágenes, etc.)
+// Lee el cuerpo de las solicitudes en formato JSON
+app.use(express.json())
+// Sirve el frontend (HTML, CSS y JS) desde la carpeta public
 app.use(express.static(path.join(__dirname, '../public')))
 
-//Muestra el archivo HTML desde la carpeta public
+// Página principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'))
 })
 
-//Routes
+// Rutas de la API: /todos exige un token válido
 app.use('/auth', authRoutes)
 app.use('/todos', authMiddleware, todoRoutes)
 

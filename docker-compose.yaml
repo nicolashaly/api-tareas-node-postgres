@@ -1,5 +1,5 @@
 services:
-  app: 
+  app:
     build: .
     container_name: todo-app
     environment:
@@ -11,9 +11,7 @@ services:
       - "5001:5001"
     depends_on:
       - db
-    volumes:
-      - .:/app
-  
+
   db:
     image: postgres:13-alpine
     container_name: postgres-db

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App de tareas | Node.JS Express.JS SQLite</title>
+    <title>App de tareas | Node.js · Express · PostgreSQL</title>
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/panda.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -15,7 +15,7 @@
 <body>
     <section id="auth">
         <div>
-            <h2 className="sign-up-text">Iniciar sesión</h2>
+            <h2 class="sign-up-text">Iniciar sesión</h2>
             <p>¡Crea una cuenta!</p>
         </div>
 
@@ -63,7 +63,7 @@
 
     const apiBase = '/'
 
-    // elements
+    // Elementos del DOM
     const nav = document.querySelector('nav')
     const header = document.querySelector('header')
     const main = document.querySelector('main')
@@ -75,10 +75,8 @@
     const registerBtn = document.getElementById('registerBtn')
     const authBtn = document.getElementById('authBtn')
     const addTodoBtn = document.getElementById('addTodoBtn')
-    // const deleteBtn = document.getElementById('')
-    // const updateBtn = 
 
-    // PAGE RENDERING LOGIC
+    // Renderizado
     async function showDashboard() {
         nav.style.display = 'block'
         header.style.display = 'flex'
@@ -100,7 +98,6 @@
         navElements.forEach(ele => {
             const btnText = ele.dataset.tab
 
-            // filter todos in here
             const count = todos.filter(val => {
                 if (btnText === 'All') {
                     return true
@@ -110,7 +107,6 @@
                     !val.completed
             }).length
 
-            // target inside space and update value
             ele.querySelector('span').innerText = `(${count})`
         })
     }
@@ -128,19 +124,17 @@
     }
 
     function renderTodos() {
-        // need to add filtering logic in here
-
         updateNavCount()
         updateHeaderText()
 
         let todoList = ``
         todos.filter(val => {
             return selectedTab === 'All' ? true : selectedTab === 'Complete' ? val.completed : !val.completed
-        }).forEach((todo, todoIndex) => {
+        }).forEach(todo => {
             const taskIndex = todo.id
             todoList += `
             <div class="card todo-item">
-                <p>${todo.task}</p>
+                <p>${escapeHtml(todo.task)}</p>
                 <div class="todo-buttons">
                     <button onclick="updateTodo(${taskIndex})" ${todo.completed ? 'disabled' : ''}>
                         <h6>Hecho</h6>
@@ -163,9 +157,7 @@
         main.innerHTML = todoList
     }
 
-    // showDashboard()
-
-    // AUTH LOGIC
+    // Autenticación
 
     async function toggleIsRegister() {
         isRegistration = !isRegistration
@@ -176,11 +168,10 @@
     }
 
     async function authenticate() {
-        // access email and pass values
         const emailVal = email.value
         const passVal = password.value
 
-        // guard clauses... if authenticating, return
+        // No envía nada si ya hay una solicitud en curso o los datos no son válidos
         if (
             isLoading ||
             isAuthenticating ||
@@ -190,15 +181,13 @@
             !emailVal.includes('@')
         ) { return }
 
-        // reset error and set isAuthenticating to true
-        error.style.display = 'none'
+        textError.style.display = 'none'
         isAuthenticating = true
         authBtn.innerText = 'Autenticando...'
 
         try {
             let data
             if (isRegistration) {
-                // register an account
                 const response = await fetch(apiBase + 'auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -206,7 +195,6 @@
                 })
                 data = await response.json()
             } else {
-                // login an account
                 const response = await fetch(apiBase + 'auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -219,28 +207,21 @@
                 token = data.token
                 localStorage.setItem('token', token)
 
-                // authenicating into loading
                 authBtn.innerText = 'Cargando...'
 
-                // fetch todos
-                await fetchTodos()
-
-                // show dashboard
-                showDashboard()
+                await showDashboard()
             } else {
                 throw Error('❌ No se pudo autenticar...')
             }
 
         } catch (err) {
             console.log(err.message)
-            error.innerText = err.message
-            error.style.display = 'block'
+            textError.innerText = err.message
+            textError.style.display = 'block'
         } finally {
             authBtn.innerText = 'Enviar'
             isAuthenticating = false
         }
-
-
     }
 
     function logout() {
@@ -257,35 +238,38 @@
         authContent.style.display = 'flex'
     }
 
-    // CRUD LOGIC
+    // Tareas (CRUD)
 
     async function fetchTodos() {
         isLoading = true
         const response = await fetch(apiBase + 'todos', {
             headers: { 'Authorization': token }
         })
-        const todosData = await response.json()
-        todos = todosData
+        // Token vencido o inválido: vuelve a la pantalla de login
+        if (!response.ok) {
+            isLoading = false
+            logout()
+            return
+        }
+        todos = await response.json()
         isLoading = false
         renderTodos()
     }
 
     async function updateTodo(index) {
-        // set task complete status to true
-        await fetch(apiBase + 'todos' + '/' + index, {
+        await fetch(apiBase + 'todos/' + index, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': token
             },
-            body: JSON.stringify({ task: todos.find(val => val.id === index).task, completed: 1 })
+            body: JSON.stringify({ completed: true })
         })
         fetchTodos()
     }
 
     async function deleteTodo(index) {
-        // set task complete status to true
-        await fetch(apiBase + 'todos' + '/' + index, {
+        await fetch(apiBase + 'todos/' + index, {
             method: 'DELETE',
             headers: {
                 'Authorization': token
@@ -295,7 +279,7 @@
     }
 
     async function addTodo() {
-        // have to access this val later as it's rendered with js
+        // El input se crea en renderTodos, por eso se busca aquí
         const todoInput = document.getElementById('todoInput')
         const task = todoInput.value
 
@@ -313,20 +297,16 @@
         fetchTodos()
     }
 
-    // UTILITY FUNCTIONS
+    // Evita que el texto de una tarea se interprete como HTML (XSS)
+    function escapeHtml(text) {
+        const div = document.createElement('div')
+        div.textContent = text
+        return div.innerHTML
+    }
 
-
-    // load page and read local storage for key
-
-    // default to login screen
-
-    // if is authenticated, show todo app
+    // Si hay un token guardado, entra directo a las tareas
     if (token) {
-        async function run() {
-            await fetchTodos()
-            showDashboard()
-        }
-        run()
+        showDashboard()
     }
 </script>
 

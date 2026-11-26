@@ -1,16 +1,24 @@
 {
-  "name": "final",
+  "name": "api-tareas-node-postgres",
   "version": "1.0.0",
-  "description": "Aplicación 'Fullstack' de gestión de usuarios con Node.js, PostgreSQL, Prisma ORM, Docker y autentificación JWT",
-  "main": "index.js",
+  "description": "API REST de tareas con registro, login JWT, PostgreSQL, Prisma y Docker",
+  "main": "src/server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
     "dev": "node --watch --env-file=.env src/server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "node",
+    "express",
+    "postgresql",
+    "prisma",
+    "jwt",
+    "docker",
+    "api-rest"
+  ],
+  "author": "Nicolás Haly Arroyo",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",

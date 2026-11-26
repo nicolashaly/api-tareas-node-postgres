@@ -1,18 +1,27 @@
 import express from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import prisma from '../prismaClient.js';
+import prisma from '../prismaClient.js'
 
 const router = express.Router()
 
-//Registrar nuevo usuario /auth/register
-router.post('/register', async (req, res) => {
+// Valida que vengan usuario y contraseña antes de tocar la base de datos
+function validarCredenciales(req, res, next) {
+    const { username, password } = req.body ?? {}
+    if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) {
+        return res.status(400).json({ message: 'Faltan el usuario o la contraseña' })
+    }
+    next()
+}
+
+// POST /auth/register - Crea un usuario y devuelve un token
+router.post('/register', validarCredenciales, async (req, res) => {
     const { username, password } = req.body
 
-    //Encriptar la contraseña antes de guardarla en la base de datos
+    // Cifra la contraseña antes de guardarla en la base de datos
     const hashedPassword = bcrypt.hashSync(password, 8)
 
-    //Guardar el usuario en la base de datos
+    // Guarda el usuario en la base de datos
     try {
         const user = await prisma.user.create({
             data: {
@@ -21,7 +30,7 @@ router.post('/register', async (req, res) => {
             }
         })
 
-        //Gererar la primera tarea para el usuario
+        // Crea una primera tarea de bienvenida
         const defaultTodo = `Hola ${username}, esta es tu primera tarea. ¡Puedes eliminarla o marcarla como completada!`
         await prisma.todo.create({
             data: {
@@ -30,7 +39,7 @@ router.post('/register', async (req, res) => {
             }
         })
 
-        //Crear un token JWT para el usuario recién registrado
+        // Token JWT válido por 24 horas
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' })
         res.json({ token })
     } catch (err) {
@@ -42,7 +51,8 @@ router.post('/register', async (req, res) => {
     }
 })
 
-router.post('/login', async (req, res) => {
+// POST /auth/login - Verifica la contraseña y devuelve un token
+router.post('/login', validarCredenciales, async (req, res) => {
     const { username, password } = req.body
 
     try {
@@ -61,15 +71,13 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Contraseña incorrecta' })
         }
 
-        //Crear un token JWT para el usuario
+        // Token JWT válido por 24 horas
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' })
         res.json({ token })
     } catch (err) {
         console.error(err.name, err.code)
         res.sendStatus(500)
     }
-
-})  
-
+})
 
 export default router
