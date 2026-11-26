@@ -60,8 +60,6 @@ prisma/            esquema de la base y migraciones
 public/            frontend
 ```
 
-## Autoría
-
-El backend (servidor, rutas, autenticación, base de datos y Docker) lo escribí yo. El frontend lo armé a partir de un ejemplo y con ayuda de IA, ya que el objetivo del proyecto era practicar backend.
+## Autor
 
 Nicolás Haly Arroyo
